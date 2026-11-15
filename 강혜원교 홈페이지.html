@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세계의 진리와 자비의 강혜원교</title>
+    <!-- 구글 폰트 적용 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Noto+Serif+KR:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS SDK CDN 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-color: #E8E3D5;       /* 메인: 낡은 성화 아이보리 */
+            --card-bg: #F4F1E8;        /* 카드 배경 */
+            --dark-color: #171717;      /* 보조: 깊은 검정 */
+            --gold-color: #B89B5E;      /* 포인트: 탁한 금색 */
+            --text-sub: #555555;        /* 서브 텍스트 */
+            --border-light: rgba(184, 155, 94, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--dark-color);
+            font-family: 'Noto Serif KR', serif;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* GNB 상단 메뉴바 */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(232, 227, 213, 0.92);
+            border-bottom: 1px solid var(--gold-color);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2rem;
+        }
+
+        .logo {
+            color: var(--dark-color);
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-mark {
+            color: var(--gold-color);
+            font-size: 1.3rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--dark-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--gold-color);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 1.5px;
+            background-color: var(--gold-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover::after, .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* 메인 컨테이너 */
+        main {
+            margin-top: 75px;
+            min-height: calc(100vh - 75px - 80px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2.5rem 1rem;
+        }
+
+        .tab-content {
+            display: none;
+            max-width: 1100px;
+            width: 100%;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 금빛 기계 제단 히어로 배경 */
+        .hero-banner {
+            position: relative;
+            border: 1px solid var(--gold-color);
+            padding: 6rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 25px rgba(23, 23, 23, 0.12);
+            margin-bottom: 3rem;
+            overflow: hidden;
+            background-color: #E8E3D5;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1600&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center 40%;
+            filter: blur(1.8px) brightness(1.05) contrast(1.1);
+            transform: scale(1.03);
+            z-index: 0;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(232, 227, 213, 0.45) 0%, rgba(244, 241, 232, 0.75) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .halo-symbol {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 1.5rem auto;
+            border-radius: 50%;
+            border: 2px dashed var(--gold-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: rgba(232, 227, 213, 0.85);
+            box-shadow: 0 0 25px rgba(184, 155, 94, 0.4);
+        }
+
+        .halo-symbol::before {
+            content: '⚙';
+            font-size: 2.8rem;
+            color: var(--gold-color);
+        }
+
+        .halo-symbol::after {
+            content: '☥';
+            position: absolute;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .hero-title {
+            font-size: 2.7rem;
+            font-weight: 800;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 12px rgba(255, 255, 255, 0.9);
+        }
+
+        .hero-sub {
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            word-break: keep-all;
+            text-shadow: 0 1px 8px rgba(255, 255, 255, 0.8);
+        }
+
+        .cta-btn {
+            background-color: var(--dark-color);
+            color: var(--bg-color);
+            border: 1px solid var(--gold-color);
+            padding: 0.9rem 2.8rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .cta-btn:hover {
+            background-color: var(--gold-color);
+            color: var(--dark-color);
+            border-color: var(--dark-color);
+        }
+
+        /* 메인 소개 구절 */
+        .sacred-quote-box {
+            background-color: rgba(244, 241, 232, 0.75);
+            border-left: 3px solid var(--gold-color);
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            line-height: 2.2;
+            font-size: 1.05rem;
+        }
+
+        .sacred-quote-box p {
+            margin-bottom: 1rem;
+        }
+
+        /* 3열 그리드 카드 레이아웃 */
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .grid-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-light);
+            padding: 2.5rem 1.8rem;
+            text-align: center;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .grid-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold-color);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: var(--gold-color);
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin-bottom: 1.8rem;
+            word-break: keep-all;
+            line-height: 1.7;
+        }
+
+        .card-btn {
+            background: none;
+            border: 1px solid var(--gold-color);
+            color: var(--dark-color);
+            padding: 0.5rem 1.2rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            align-self: center;
+            transition: all 0.3s ease;
+        }
+
+        .card-btn:hover {
+            background-color: var(--gold-color);
+            color: #fff;
+        }
+
+        .slogan-bar {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            color: var(--gold-color);
+            font-weight: 600;
+            letter-spacing: 4px;
+            margin-top: 2rem;
+        }
+
+        /* 커뮤니티 스타일 */
+        .auth-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed var(--gold-color);
+        }
+
+        .btn-small {
+            background: var(--dark-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 0.4rem 1rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn-small:hover {
+            background: var(--gold-color);
+            color: var(--dark-color);
+        }
+
+        .post-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .post-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--gold-color);
+            padding: 1.2rem 1.5rem;
+        }
+
+        .post-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--dark-color);
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .post-author {
+            font-size: 0.8rem;
+            color: var(--gold-color);
+            background: var(--dark-color);
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+
+        .post-content {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            white-space: pre-wrap;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 35px;
+            right: 35px;
+            width: 55px;
+            height: 55px;
+            background-color: var(--dark-color);
+            color: var(--bg-color);
+            border: 2px solid var(--gold-color);
+            border-radius: 50%;
+            font-size: 1.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            transform: rotate(90deg) scale(1.08);
+            background-color: var(--gold-color);
+            color: var(--dark-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(23, 23, 23, 0.4);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--gold-color);
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 480px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.88rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            color: var(--dark-color);
+            font-family: inherit;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--gold-color);
+            background: #fff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-light);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 상단 GNB 메뉴바 -->
+    <header>
+        <nav>
+            <a href="#" class="logo" onclick="switchTab('intro')">
+                <span class="logo-mark">⚙</span> 세계의 진리와 자비의 강혜원교
+            </a>
+            <ul class="nav-links">
+                <li><a href="#intro" class="nav-item active" onclick="switchTab('intro')">강혜원교</a></li>
+                <li><a href="#history" class="nav-item" onclick="switchTab('history')">강혜원교의 역사</a></li>
+                <li><a href="#achieve" class="nav-item" onclick="switchTab('achieve')">신 강혜원의 위대한 업적</a></li>
+                <li><a href="#community" class="nav-item" onclick="switchTab('community')">신도 커뮤니티</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- 1. 강혜원교 메인 소개 -->
+        <section id="intro" class="tab-content active">
+            <div class="hero-banner">
+                <div class="hero-bg"></div>
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <div class="halo-symbol"></div>
+                    <h1 class="hero-title">당신은 선택받았습니다</h1>
+                    <p class="hero-sub">지금, 그분과 함께 새로운 세상이 시작됩니다.</p>
+                    <button class="cta-btn" onclick="openModal('signup-modal')">신도 가입하기</button>
+                </div>
+            </div>
+
+            <div class="sacred-quote-box">
+                <h3 style="color: var(--gold-color); font-size: 1.1rem; margin-bottom: 1.5rem; letter-spacing: 2px;">“믿음이 곧 진리이며 자비이다.”</h3>
+                <p>세계의 진리와 자비의 강혜원교는<br>진리를 찾는 모든 이들을 위한 평화로운 믿음의 공동체입니다.</p>
+                <p>우리는 누구에게나 선택할 자유가 있다고 말합니다.</p>
+                <p style="margin: 1.5rem 0; font-weight: 600;">무엇을 믿을 것인지, 어떤 길을 걸을 것인지,<br>그 선택은 오직 당신에게 달려 있습니다.</p>
+                <p>하지만 한 가지 진실만은 변하지 않습니다.<br>믿음은 우리를 하나로 만들고, 자비는 우리를 온전하게 만듭니다.</p>
+                <p>강혜원교의 문은 언제나 열려 있습니다.<br>당신이 길을 잃었을 때도, 세상이 당신을 외면했을 때도,<br>우리는 당신을 기다리고 있습니다.</p>
+                <p style="color: var(--dark-color); font-weight: 700; margin-top: 1.5rem; font-size: 1.1rem;">당신은 혼자가 아닙니다. 당신이 믿는 순간, 우리는 하나가 됩니다.</p>
+            </div>
+
+            <div class="section-grid">
+                <div class="grid-card">
+                    <div>
+                        <div class="card-icon">⚙</div>
+                        <h3 class="card-title">기계의 권능</h3>
+                        <p class="card-desc">신 강혜원님의 지혜는 차가운 태엽 속에서 피어난 자비입니다. 의심을 거두십시오.</p>
+                    </div>
+                    <button class="card-btn" onclick="switchTab('history')">자세히 보기</button>
+                </div>
+                <div class="grid-card">
+                    <div>
+                        <div class="card-icon">🕊</div>
+                        <h3 class="card-title">신 강혜원의 업적</h3>
+                        <p class="card-desc">로봇공학과 기계의 극의로 기후위기와 전쟁을 다스리신 거룩한 기록입니다.</p>
+                    </div>
+                    <button class="card-btn" onclick="switchTab('achieve')">자세히 보기</button>
+                </div>
+                <div class="grid-card">
+                    <div>
+                        <div class="card-icon">☥</div>
+                        <h3 class="card-title">신도들의 이야기</h3>
+                        <p class="card-desc">"그분을 만난 후, 우리의 삶은 완전히 달라졌습니다." 구원받은 신도들의 고백.</p>
+                    </div>
+                    <button class="card-btn" onclick="switchTab('community')">커뮤니티 이동</button>
+                </div>
+            </div>
+
+            <div class="slogan-bar">
+                ✦ 함께하는 믿음, 영원한 평화 ✦
+            </div>
+        </section>
+
+        <!-- 2. 강혜원교의 역사 -->
+        <section id="history" class="tab-content">
+            <div class="hero-banner" style="padding: 3.5rem 2rem; margin-bottom: 2rem;">
+                <div class="hero-bg"></div>
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <h2 style="font-size: 2rem;">강혜원교의 역사</h2>
+                    <p style="color: var(--text-sub); margin-top: 0.5rem;">구원과 기계의 권능, 그리고 전 세계로 번진 은혜의 발자취</p>
+                </div>
+            </div>
+            
+            <div class="sacred-quote-box" style="text-align: justify; line-height: 2.1; word-break: keep-all;">
+                <p>태초의 혼돈과 잿더미 속에서, 인류는 종말에 가까운 황폐함을 겪고 있었습니다. 전쟁과 기근이 세상을 짓눌렀을 때, 정체불명의 권력자들과 고통받는 귀족, 그리고 멸망 직전의 한 지역 전체를 홀로 구원해 낸 위대한 존재가 나타났습니다. 그분이 바로 **신 강혜원**님이셨습니다.</p>
+                
+                <div style="text-align: center; font-size: 1.8rem; color: var(--gold-color); margin: 1.5rem 0;">⚙</div>
+                
+                <p>신 강혜원님께서는 인간의 한계를 초월한 **'기계의 권능'**(신 강혜원님은 로봇과 기계공학에 능통하셨다)에 누구보다 능통하셨습니다. 차가운 쇠와 정교한 톱니바퀴에 생명과 의지를 불어넣는 그분의 손길 아래, 마모된 세계는 다시 일어섰고 죽어가던 지역에는 전에 없던 정적과 완전한 평화가 찾아왔습니다.</p>
+                
+                <p>그 눈부신 기적과 은혜를 눈으로 목도하고 구원받은 사람들은 그분의 권능 앞에 엎드렸습니다. 차가운 기계 속에서 피어나는 영원한 자비를 깨달은 신도들이 모여 종교를 세웠고, 그렇게 **'세계의 진리와 자비의 강혜원교'**가 세상에 거룩한 뿌리를 내리게 되었습니다.</p>
+                
+                <p style="margin-top: 1.5rem;">그 거룩한 탄생 이후, 강혜원교의 신도들은 그분의 자비를 온 누리에 전파하기 위해 일어섰습니다. 포화가 그치지 않는 **분쟁 및 전쟁 지역에 구호대를 파견하여 무고한 생명들을 안전히 구출하고 보호**하였으며, 신 강혜원님께서 내려주신 연금술적 농업 기계 기술과 **'강혜원교의 지혜'를 통해 수 세기 동안 인류를 괴롭히던 기아 문제를 근본적으로 해결**해 냈습니다.</p>
+                
+                <p>이 고결한 헌신과 기적에 감복한 수많은 민족과 국가들이 그분의 가르침을 받아들였고, 강혜원교는 단순한 믿음의 모임을 넘어 시대를 구원하는 **세계적인 종교**로 거듭났습니다.</p>
+                
+                <p style="text-align: center; font-weight: 700; color: var(--dark-color); margin-top: 2rem; border-top: 1px dashed var(--gold-color); padding-top: 1.5rem;">
+                    오늘날 강혜원교는 전 세계 6대주에 걸쳐 <span style="color: var(--gold-color); font-size: 1.15rem;">12,400여 개의 대성전</span>을 거느리고 있으며, <br>지금 이 순간에도 백만 명의 신도들이 톱니바퀴의 정교한 궤적 속에서 세상의 평화를 기도하고 있습니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- 3. 신 강혜원의 위대한 업적 -->
+        <section id="achieve" class="tab-content">
+            <div class="hero-banner" style="padding: 3.5rem 2rem; margin-bottom: 2rem;">
+                <div class="hero-bg"></div>
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <h2 style="font-size: 2rem;">신 강혜원의 위대한 업적</h2>
+                    <p style="color: var(--text-sub); margin-top: 0.5rem;">기계의 극의로 멸망의 위기에서 인류를 구원하신 거룩한 기록</p>
+                </div>
+            </div>
+
+            <div class="sacred-quote-box" style="padding: 3.5rem 2.5rem; text-align: justify; line-height: 2.2;">
+                
+                <h3 style="text-align: center; color: var(--gold-color); font-size: 1.3rem; margin-bottom: 2rem; letter-spacing: 2px;">
+                    ✦ 인간의 지혜를 넘어 신성(神性)의 경지에 이른 자비 ✦
+                </h3>
+
+                <p>태초에 인류는 오만함과 무지로 스스로를 파멸로 밀어 넣었습니다. 대지는 사막으로 변하고 하늘은 분노하였으며, 무익한 분쟁으로 인류의 등불이 꺼져가던 바로 그 비극의 시대에 **신 강혜원**님께서 땅 위에 내려오셨습니다.</p>
+
+                <p style="margin-top: 1.2rem;">신 강혜원님께서는 학문의 한계를 넘어선 **기계공학의 진리**를 깨우치셨고, 마침내 차가운 금속에 의지와 섭리를 부여하는 **로봇 공학의 신성한 경지**에 도달하셨습니다. 그분의 손 끝에서 시작된 정교한 톱니바퀴와 기계의 권능은 죽어버린 생태계를 다시 숨 쉬게 만들었습니다.</p>
+
+                <div style="background: rgba(232, 227, 213, 0.6); border: 1px solid var(--border-light); padding: 1.8rem; margin: 2rem 0; border-radius: 4px;">
+                    <p style="font-weight: 700; color: var(--dark-color); margin-bottom: 0.5rem; text-align: center;">⚙ 신 강혜원께서 행하신 기적의 이적</p>
+                    <ul style="list-style: none; padding: 0; font-size: 0.98rem; color: var(--text-sub);">
+                        <li style="margin-bottom: 0.8rem;">• <strong>기후위기의 극복:</strong> 대기와 해양의 이치를 조율하는 거대한 자율 기계 제어 장치를 하사하시어, 파멸로 치닫던 지구의 기후를 완벽한 정적과 조화 속으로 되돌려 놓으셨습니다.</li>
+                        <li>• <strong>전쟁의 종식:</strong> 무지한 피 흘림을 멈추기 위해 신성한 자율 수호 로봇 군단을 창조하시어, 온 누리의 무기를 봉인하고 마침내 인류에게 다툼이 없는 평화를 안겨주셨습니다.</li>
+                    </ul>
+                </div>
+
+                <p style="text-align: center; font-size: 1.15rem; word-break: keep-all; margin-top: 2rem; color: var(--dark-color); font-weight: 600;">
+                    위대하신 신 강혜원님께서는 육신의 굴레를 벗고 섭리로 돌아가시기 전,<br>
+                    이 땅의 모든 상처를 치유하시고 우리에게 <strong style="border-bottom: 2px solid var(--gold-color); padding-bottom: 2px;">영원하고 덧없는 평화</strong>를 선물하셨습니다.
+                </p>
+
+                <div style="font-size: 1.8rem; color: var(--gold-color); margin-top: 2.5rem; text-align: center;">⚙ ✦ ⚙</div>
+            </div>
+        </section>
+
+        <!-- 4. 신도 커뮤니티 -->
+        <section id="community" class="tab-content">
+            <div class="hero-banner" style="padding: 3rem 2rem; margin-bottom: 2rem;">
+                <div class="hero-bg"></div>
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <h2 style="font-size: 2rem;">신도 커뮤니티</h2>
+                    <p style="color: var(--text-sub); margin-top: 0.5rem;">자유롭게 고백하고 교류하는 성스러운 광장</p>
+                </div>
+            </div>
+
+            <div class="auth-bar">
+                <span id="user-status" style="font-size: 0.85rem; align-self: center; color: var(--text-sub);">로그인이 필요합니다.</span>
+                <button class="btn-small" id="login-btn" onclick="openModal('login-modal')">로그인</button>
+                <button class="btn-small" id="signup-btn" onclick="openModal('signup-modal')">회원가입</button>
+                <button class="btn-small" id="logout-btn" style="display:none;" onclick="logout()">로그아웃</button>
+            </div>
+
+            <ul class="post-list" id="post-list">
+                <li class="post-item">
+                    <div class="post-title">
+                        <span>데이터를 불러오는 중입니다...</span>
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- 플로팅 작성 버튼 (+) -->
+    <button class="fab" id="fab-btn" title="글 작성" onclick="handleFabClick()">+</button>
+
+    <!-- 모달: 회원가입 -->
+    <div class="modal" id="signup-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('signup-modal')">&times;</span>
+            <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; text-align: center;">신도 입교 (회원가입)</h3>
+            <form onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label>신도명 (아이디)</label>
+                    <input type="text" id="signup-id" required>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="signup-pw" required>
+                </div>
+                <button type="submit" class="cta-btn" style="width: 100%; margin-top: 1rem;">서약하고 가입하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 모달: 로그인 -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('login-modal')">&times;</span>
+            <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; text-align: center;">신도 로그인</h3>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>신도명</label>
+                    <input type="text" id="login-id" required>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="login-pw" required>
+                </div>
+                <button type="submit" class="cta-btn" style="width: 100%; margin-top: 1rem;">로그인</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 모달: 글 작성 -->
+    <div class="modal" id="write-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('write-modal')">&times;</span>
+            <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; text-align: center;">새 글 작성</h3>
+            <form onsubmit="handlePost(event)">
+                <div class="form-group">
+                    <label>제목</label>
+                    <input type="text" id="post-title" placeholder="제목을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>내용</label>
+                    <textarea id="post-content" rows="5" placeholder="내용을 입력하세요" required></textarea>
+                </div>
+                <button type="submit" class="cta-btn" style="width: 100%; margin-top: 1rem;">글 등록</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>세계의 진리와 자비의 강혜원교 &copy; ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <script>
+        let _supabase = null;
+        try {
+            const SUPABASE_URL = 'https://kdtcbgwgujxainjeaset.supabase.co';
+            const SUPABASE_KEY = 'sb_publishable_dV9AruEFX9i3nJR32zf6mA_-pnY-VTz';
+            if (typeof supabase !== 'undefined') {
+                _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch (err) {
+            console.error('Supabase 초기화 오류:', err);
+        }
+
+        let currentUser = null;
+
+        function switchTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const navs = document.querySelectorAll('.nav-item');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            navs.forEach(nav => {
+                if(nav.getAttribute('onclick').includes(tabId)) {
+                    nav.classList.add('active');
+                } else {
+                    nav.classList.remove('active');
+                }
+            });
+
+            const target = document.getElementById(tabId);
+            if(target) target.classList.add('active');
+
+            const fab = document.getElementById('fab-btn');
+            if(tabId === 'community') {
+                fab.style.display = 'flex';
+                loadCommunityPosts();
+            } else {
+                fab.style.display = 'none';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openModal(id) { 
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = 'flex'; 
+        }
+
+        function closeModal(id) { 
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = 'none'; 
+        }
+
+        // 회원가입 (guestbook 테이블: nickname, password)
+        async function handleSignup(e) {
+            e.preventDefault();
+            if (!_supabase) {
+                alert('데이터베이스 연결에 실패하여 가입할 수 없습니다.');
+                return;
+            }
+
+            const id = document.getElementById('signup-id').value.trim();
+            const pw = document.getElementById('signup-pw').value.trim();
+
+            const { data: existingUser, error: checkError } = await _supabase
+                .from('guestbook')
+                .select('*')
+                .eq('nickname', id)
+                .maybeSingle();
+
+            if (checkError) {
+                alert('중복 확인 중 오류가 발생했습니다: ' + checkError.message);
+                return;
+            }
+
+            if (existingUser) {
+                alert('이미 존재하는 신도명(아이디)입니다.');
+                return;
+            }
+
+            const { error: insertError } = await _supabase
+                .from('guestbook')
+                .insert([{ nickname: id, password: pw }]);
+
+            if (insertError) {
+                alert('회원가입 실패: ' + insertError.message);
+                return;
+            }
+
+            alert('입교(회원가입)를 환영합니다. 로그인해 주십시오.');
+            document.getElementById('signup-id').value = '';
+            document.getElementById('signup-pw').value = '';
+            closeModal('signup-modal');
+            openModal('login-modal');
+        }
+
+        // 로그인 (guestbook 테이블: nickname, password)
+        async function handleLogin(e) {
+            e.preventDefault();
+            if (!_supabase) {
+                alert('데이터베이스 연결에 실패하여 로그인할 수 없습니다.');
+                return;
+            }
+
+            const id = document.getElementById('login-id').value.trim();
+            const pw = document.getElementById('login-pw').value.trim();
+
+            const { data: userRecord, error } = await _supabase
+                .from('guestbook')
+                .select('*')
+                .eq('nickname', id)
+                .maybeSingle();
+
+            if (error || !userRecord || userRecord.password !== pw) {
+                alert('신도명 또는 비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            currentUser = id;
+            document.getElementById('user-status').innerText = `신도 [${currentUser}] 님 접속 중`;
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('signup-btn').style.display = 'none';
+            document.getElementById('logout-btn').style.display = 'inline-block';
+            
+            document.getElementById('login-id').value = '';
+            document.getElementById('login-pw').value = '';
+            alert(`환영합니다, ${currentUser} 신도님.`);
+            closeModal('login-modal');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('user-status').innerText = '로그인이 필요합니다.';
+            document.getElementById('login-btn').style.display = 'inline-block';
+            document.getElementById('signup-btn').style.display = 'inline-block';
+            document.getElementById('logout-btn').style.display = 'none';
+            alert('로그아웃되었습니다.');
+        }
+
+        function handleFabClick() {
+            if (!currentUser) {
+                alert('신도 커뮤니티에 글을 남기시려면 먼저 회원가입 및 로그인을 완료해야 합니다.');
+                openModal('login-modal');
+            } else {
+                openModal('write-modal');
+            }
+        }
+
+        // 커뮤니티 글 등록 (community 테이블: author, content)
+        // 제목과 내용을 함께 저장하기 위해 "[제목] 내용" 형태로 조합하여 content 컬럼에 저장
+        async function handlePost(e) {
+            e.preventDefault();
+            if (!_supabase) {
+                alert('데이터베이스 연결에 실패하여 글을 등록할 수 없습니다.');
+                return;
+            }
+
+            const title = document.getElementById('post-title').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+            const combinedContent = `[${title}]\n${content}`;
+
+            const { error } = await _supabase
+                .from('community')
+                .insert([{ author: currentUser, content: combinedContent }]);
+
+            if (error) {
+                alert('글 등록 실패: ' + error.message);
+                return;
+            }
+
+            document.getElementById('post-title').value = '';
+            document.getElementById('post-content').value = '';
+            closeModal('write-modal');
+            alert('글이 성공적으로 등록되었습니다.');
+            
+            loadCommunityPosts();
+        }
+
+        // 커뮤니티 데이터 조회 (community 테이블: author, content)
+        async function loadCommunityPosts() {
+            const postList = document.getElementById('post-list');
+            if (!_supabase) {
+                postList.innerHTML = `<li class="post-item"><div class="post-title"><span>데이터베이스가 연결되지 않았습니다.</span></div></li>`;
+                return;
+            }
+            
+            const { data: posts, error } = await _supabase
+                .from('community')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                postList.innerHTML = `<li class="post-item"><div class="post-title"><span>데이터를 불러오는 중 오류가 발생했습니다: ${escapeHtml(error.message)}</span></div></li>`;
+                return;
+            }
+
+            if (!posts || posts.length === 0) {
+                postList.innerHTML = `<li class="post-item"><div class="post-title"><span>등록된 글이 없습니다.</span></div></li>`;
+                return;
+            }
+
+            let html = '';
+            posts.forEach(p => {
+                // title 컬럼이 없으므로 content에서 [제목] 부분을 분리해서 표시
+                let displayTitle = '신도의 고백';
+                let displayContent = p.content || '';
+                
+                if (p.title) {
+                    displayTitle = p.title;
+                } else if (displayContent.startsWith('[') && displayContent.includes(']')) {
+                    const endIdx = displayContent.indexOf(']');
+                    displayTitle = displayContent.substring(1, endIdx);
+                    displayContent = displayContent.substring(endIdx + 1).trim();
+                }
+
+                html += `
+                    <li class="post-item">
+                        <div class="post-title">
+                            <span>${escapeHtml(displayTitle)}</span>
+                            <span class="post-author">${escapeHtml(p.author || '익명')}</span>
+                        </div>
+                        <div class="post-content">${escapeHtml(displayContent)}</div>
+                    </li>
+                `;
+            });
+            postList.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        window.onload = function() {
+            switchTab('intro');
+        }
+    </script>
+</body>
+</html>
